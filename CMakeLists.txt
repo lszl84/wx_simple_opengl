@@ -10,13 +10,14 @@ endif()
 
 # wxWidgets
 set(wxWidgets_REQUIRED_VERSION "3.2.8")
-set(wxWidgets_REQUIRED_COMPONENTS core gl)
+set(wxWidgets_REQUIRED_COMPONENTS core base gl)
 
 find_package(wxWidgets ${wxWidgets_REQUIRED_VERSION} QUIET COMPONENTS ${wxWidgets_REQUIRED_COMPONENTS})
 
 if(wxWidgets_FOUND)
     message(STATUS "Found pre-installed wxWidgets") 
     include(${wxWidgets_USE_FILE})
+	message(STATUS "-- libraries: ${wxWidgets_LIBRARIES}")
 else()
     message(STATUS "wxWidgets ${wxWidgets_REQUIRED_VERSION}+ not found, fetching v${wxWidgets_REQUIRED_VERSION} from GitHub...")
     
