@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleIdentifier</key>
-    <string>com.justdevtutorials.wx_gl_shadertoy_tutorial</string>
+    <string>com.onlyfastcode.wx_simple.opengl</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
     <key>CFBundlePackageType</key>

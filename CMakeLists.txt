@@ -1,46 +1,52 @@
-cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
-
-project(wx_gl_shadertoy_tutorial LANGUAGES CXX C)
-
-include(FetchContent)
+cmake_minimum_required(VERSION 3.20 FATAL_ERROR)                                                    
+project(wx_simple_opengl LANGUAGES CXX C)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-if (UNIX AND NOT APPLE) # For Linux
+if(UNIX AND NOT APPLE) # For Linux
     set(OpenGL_GL_PREFERENCE GLVND)
 endif()
 
-find_package(OpenGL REQUIRED)
+# wxWidgets
+set(wxWidgets_REQUIRED_VERSION "3.2.8")
+set(wxWidgets_REQUIRED_COMPONENTS core gl)
 
-set(wxBUILD_SHARED OFF)
+find_package(wxWidgets ${wxWidgets_REQUIRED_VERSION} QUIET COMPONENTS ${wxWidgets_REQUIRED_COMPONENTS})
 
-message(STATUS "Fetching wxWidgets...")
+if(wxWidgets_FOUND)
+    message(STATUS "Found pre-installed wxWidgets") 
+    include(${wxWidgets_USE_FILE})
+else()
+    message(STATUS "wxWidgets ${wxWidgets_REQUIRED_VERSION}+ not found, fetching v${wxWidgets_REQUIRED_VERSION} from GitHub...")
+    
+    include(FetchContent)
+    set(wxBUILD_SHARED OFF)
+    
+    FetchContent_Declare(
+        wxWidgets
+        GIT_REPOSITORY https://github.com/wxWidgets/wxWidgets.git
+        GIT_TAG v${wxWidgets_REQUIRED_VERSION}
+    )
+    FetchContent_MakeAvailable(wxWidgets)
 
-FetchContent_Declare(
-   wxWidgets
-   GIT_REPOSITORY https://github.com/wxWidgets/wxWidgets.git
-   GIT_SHALLOW ON
-)
-FetchContent_MakeAvailable(wxWidgets)
+    foreach(component ${wxWidgets_REQUIRED_COMPONENTS})
+        list(APPEND wxWidgets_LIBRARIES wx${component})
+    endforeach()
+endif()
 
+# GLAD
 add_library(glad STATIC glad/src/glad.c)
 target_include_directories(glad PUBLIC glad/include)
-target_link_libraries(glad PRIVATE OpenGL::GL)
 
+# Main executable
 set(SRCS src/main.cpp src/openglcanvas.cpp)
 
 if(APPLE)
-    # create bundle on apple compiles
     add_executable(main MACOSX_BUNDLE ${SRCS})
-
-    # Set a custom plist file for the app bundle - needed for Mac OS Retina display
     set_target_properties(main PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/src/Info.plist)
 else()
-    # the WIN32 is needed for Windows in order for it to look for WinMain
-    # instead of the main function. This is ignored on other systems,
-    # so it works on all platforms
     add_executable(main WIN32 ${SRCS} src/main.exe.manifest)
 endif()
 
-target_link_libraries(main PRIVATE wxcore wxstc wxgl glad)
+target_link_libraries(main PRIVATE ${wxWidgets_LIBRARIES} glad)
