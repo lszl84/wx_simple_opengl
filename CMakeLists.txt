@@ -51,3 +51,9 @@ else()
 endif()
 
 target_link_libraries(main PRIVATE ${wxWidgets_LIBRARIES} glad)
+
+# Install
+install(TARGETS main
+    RUNTIME DESTINATION bin
+    BUNDLE DESTINATION .
+)
